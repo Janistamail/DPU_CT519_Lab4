@@ -1,0 +1,51 @@
+version: '3.9'
+ 
+services:
+  sv_database:
+    image: janistamail/dpu_ct519_lab4:mariadb10.8.3-1.2.0
+    container_name: ctn_maria-db
+    restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: dbpassw0rd
+      MARIADB_DATABASE: lab4
+    volumes:
+      - ./mariadb:/var/lib/mysql
+    networks:
+      app_net:
+        ipv4_address: 192.168.64.2
+    ports:
+      - "3306:3306"
+ 
+  sv_adminer:
+    image: janistamail/dpu_ct519_lab4:adminer-1.2.0
+    container_name: ctn_adminer
+    restart: always
+    networks:
+      app_net:
+        ipv4_address: 192.168.64.3
+    ports:
+      - "8081:8080"
+    
+  sv_webserver:
+    image: janistamail/dpu_ct519_lab4:php7.2-apache-mysqli-1.2.0
+    container_name: ctn_php
+    restart: always
+    networks:
+      app_net:
+        ipv4_address: 192.168.64.4
+    ports:
+      - "8080:80"
+    volumes:
+      - ./php/www/:/var/www/html
+    links:
+      - "sv_database:database"
+ 
+networks:
+  app_net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.64.0/24
+          gateway: 192.168.64.1
+
